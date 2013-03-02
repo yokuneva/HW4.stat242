@@ -1,29 +1,51 @@
+####################################################################################################
+##                                                                                               ###
+##                     HW 4                                                                     ####
+####################################################################################################
+
+
 setwd("/home/jenya/hw5")
 
+##############################################################count number of flights leaving each airport
 
-origin.count=system("cut -d',' -f17 *.csv|
+origin.count = system("cut -d',' -f17 *.csv|
                     egrep -i '(SFO|LAX|SMF|OAK)'| 
                     sort | uniq -c", intern = TRUE)
 
 
 
+############################################################################convert to data frame for
+#####################################################################################plot
 
-setwd("/home/jenya/hw5")
-origin.delay=
-  readLines(pipe("cut -d',' -f15,17  *.csv | 
-                 egrep -i '(SFO|LAX|SMF|OAK)'",open="r+"))
+k=data.frame(origin.count)
+names(k)=c("count")
+
+m=as.data.frame(t(matrix(unlist(strsplit(as.character(k$count), 
+                                split = "[1-9] ")), nrow =2)))
+
+m$V1 = as.numeric(gsub(" ","",m$V1))
+
+barplot(m$V1, beside = TRUE, names.arg = m$V2)
 
 
 
+#################################################################open the connection 
+origin.delay = pipe("cut -d',' -f15,17  1987.csv | 
+                     egrep -i '(SFO|LAX|SMF|OAK)'",open="r+")
 
 
-readLines(origin.delay,n=100)
 
-setwd("/home/jenya")
+c=readLines(origin.delay, n=10)
 
-data = bzfile("/home/jenya/Years1987_1999.tar.bz2")
+c = sapply(readLines(origin.delay, n=100), mean)
 
-dak=readLines(data, n=11)
+
+c=function (x){
+  readLines(x,n=10)
+}
+
+
+c(origin.delay)
 
 
 
