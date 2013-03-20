@@ -2,7 +2,8 @@
 
 
 setwd("/home/jenya/hw6")
-
+library(parallel)
+library(randomForest)
 ##################################################create a list of 22 file names
 data=list.files()
 
@@ -91,7 +92,7 @@ results = parSapply(cl, getData$year, function(x) {
 stopCluster(cl)
 
 
-####################################################################
+#################################################
 sapply(ourSample, function (x) length(unique(x)))
 sapply(ourSample, class)
 
@@ -101,25 +102,8 @@ ourSample$DayOfWeek = factor(ourSample$DayOfWeek)
 
 
 
-RNGkind("L'Ecuyer-CMRG")
 
-cl = makeCluster(detectCores(), type = "FORK")
-clusterSetRNGStream(cl, 1985)
-
-randomFor = function (x,...){
-  
-  k =randomForest(ArrDelay ~ DayOfWeek + DepDelay + Distance,
-                  replace = TRUE, 
-                  data = x, ntree=10, na.action = na.omit)
-}
-
-results = clusterCall(cl,ls , , ourSample)
-
-
-stopCluster(cl)
-
-
-
+###########################################################random forest in parallel
 
 RNGkind("L'Ecuyer-CMRG")
 
@@ -132,13 +116,28 @@ results = clusterCall(cl, function(...) { replicate(5, {
   k =randomForest(ArrDelay ~ DayOfWeek + DepDelay + Distance,
                   replace = TRUE, 
                   data = ourSample, ntree=10, na.action = na.omit)
+  
 })})
 
 stopCluster(cl)
 
 
 
+################################predict method for random forest object in parallel
 
+RNGkind("L'Ecuyer-CMRG")
+
+cl = makeCluster(detectCores(), type = "FORK")
+clusterSetRNGStream(cl, 1985)
+clusterEvalQ(cl, ls())
+
+results = clusterCall(cl, function(...) {
+  
+  p = predict(k)
+  
+})})
+
+stopCluster(cl)
 
 
 
